@@ -14,10 +14,10 @@ export function RazorpayDonation() {
 
   // PROVISION FOR FUTURE ACTIVATION:
   // Paste your Razorpay Payment Link in the quotes below.
-  const NEXT_PUBLIC_RAZORPAY_PAYMENT_LINK = "";
+  const NEXT_PUBLIC_RAZORPAY_PAYMENT_LINK = process.env.NEXT_PUBLIC_RAZORPAY_PAYMENT_LINK || "";
 
   const handleDonate = () => {
-    if (NEXT_PUBLIC_RAZORPAY_PAYMENT_LINK && NEXT_PUBLIC_RAZORPAY_PAYMENT_LINK.trim() !== "") {
+    if (NEXT_PUBLIC_RAZORPAY_PAYMENT_LINK.trim().length > 0) {
       window.open(NEXT_PUBLIC_RAZORPAY_PAYMENT_LINK, '_blank', 'noopener,noreferrer');
     } else {
       toast({

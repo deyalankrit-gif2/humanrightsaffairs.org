@@ -447,7 +447,7 @@ export function KnowledgeCenter() {
               )}
             >
               <div className="absolute -right-4 -bottom-4 opacity-5 group-hover:scale-125 transition-transform duration-700 hidden md:block">
-                {React.cloneElement(guide.icon as React.ReactElement, { className: "w-32 h-32 md:w-48 md:h-48" })}
+                <div className="w-32 h-32 md:w-48 md:h-48">{guide.icon}</div>
               </div>
               <div className="relative z-10">
                 <div className="p-2 md:p-3 bg-white dark:bg-slate-800 rounded-xl w-fit shadow-sm mb-4 md:mb-6">
@@ -499,7 +499,7 @@ export function KnowledgeCenter() {
               <div className="flex flex-col">
                 <div className="relative bg-gradient-to-br from-primary via-primary/95 to-accent p-12 md:p-16 text-primary-foreground overflow-hidden shrink-0 border-b-8 border-accent/20">
                   <div className="absolute top-0 right-0 opacity-10 pointer-events-none transform translate-x-10 translate-y-[-10px]">
-                    {React.cloneElement(selectedGuide.icon as React.ReactElement, { className: "w-64 h-64 md:w-80 md:h-80" })}
+                    <div className="w-64 h-64 md:w-80 md:h-80">{selectedGuide.icon}</div>
                   </div>
                   <div className="relative z-10 space-y-4">
                     <div className="inline-flex items-center gap-2 bg-white/20 backdrop-blur-md px-4 py-1.5 rounded-full border border-white/30">

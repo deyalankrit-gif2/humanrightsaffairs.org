@@ -226,7 +226,7 @@ export default function BailProcedurePage() {
                            <div className="flex flex-col">
                              <div className={cn("relative p-12 md:p-16 text-white overflow-hidden border-b-8 border-accent/20 bg-gradient-to-br from-primary via-primary/95 to-accent")}>
                                 <div className="absolute top-0 right-0 opacity-10 pointer-events-none transform translate-x-12 translate-y-[-10px]">
-                                  {React.cloneElement(step.icon as React.ReactElement, { className: "w-64 h-64 md:w-96 md:h-96" })}
+                                  <div className="w-64 h-64 md:w-96 md:h-96">{step.icon}</div>
                                 </div>
                                 <div className="relative z-10 space-y-4">
                                   <div className="inline-flex items-center gap-2 bg-white/10 backdrop-blur-md px-4 py-1.5 rounded-full border border-white/20">

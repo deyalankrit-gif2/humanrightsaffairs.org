@@ -87,7 +87,7 @@ export default function TrustCredentialsPage() {
                   <CardHeader className="p-8 pb-4">
                      <div className="flex items-center gap-4">
                         <div className="p-3 bg-slate-50 dark:bg-slate-800 rounded-2xl group-hover:bg-accent transition-colors duration-500">
-                           {React.cloneElement(cred.icon as React.ReactElement, { className: "w-6 h-6 text-accent group-hover:text-white" })}
+                           <div className="w-6 h-6 text-accent group-hover:text-white">{cred.icon}</div>
                         </div>
                         <CardTitle className="text-xl md:text-2xl font-headline font-bold text-primary dark:text-white group-hover:text-accent transition-colors">
                           {cred.title}

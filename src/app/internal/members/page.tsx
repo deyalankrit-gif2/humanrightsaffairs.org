@@ -156,7 +156,38 @@ export default function MembersPage() {
   const db = useFirestore()
   const { toast } = useToast()
 
-  const [newMember, setNewMember] = useState({
+  type MemberFormState = {
+    honorific: string
+    name: string
+    designationCategory: string
+    designation: string
+    profession: string
+    education: string
+    experience: string
+    gender: string
+    bloodGroup: string
+    email: string
+    phone: string
+    address: string
+    postOffice: string
+    policeStation: string
+    pinCode: string
+    level: 'National' | 'State' | 'District' | 'Sub-Division' | 'Block'
+    status: string
+    memberId: string
+    stateName: string
+    districtName: string
+    subdivisionName: string
+    blockName: string
+    imageId: string
+    joiningDate: string
+    expiryDate: string
+    membershipDuration: string
+    aadhaar: string
+    pan: string
+  }
+
+  const [newMember, setNewMember] = useState<MemberFormState>({
     honorific: '',
     name: '',
     designationCategory: 'General Member',
@@ -172,7 +203,7 @@ export default function MembersPage() {
     postOffice: '',
     policeStation: '',
     pinCode: '',
-    level: 'National' as const,
+    level: 'National',
     status: 'Active',
     memberId: '',
     stateName: '',

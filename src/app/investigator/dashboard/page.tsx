@@ -65,14 +65,15 @@ export default function InvestigatorDashboard() {
   }, [allAssignedRaw]);
 
   const stats = useMemo(() => {
-    if (!assignedCases || !user?.email) return { active: 0, high: 0, tasks: 0 };
+    if (!assignedCases) return { active: 0, high: 0, tasks: 0 };
+    const safeEmail = user?.email?.toLowerCase().trim() ?? '';
     
     const active = assignedCases.length;
     const high = assignedCases.filter((c: any) => c.priority === 'High').length;
     
     let pendingTasks = 0;
     assignedCases.forEach((c: any) => {
-       const myMember = (c.investigationTeam || []).find((m: any) => (m.email || '').toLowerCase().trim() === user.email.toLowerCase().trim());
+       const myMember = (c.investigationTeam || []).find((m: any) => (m.email || '').toLowerCase().trim() === safeEmail);
        if (myMember) {
           // Aggregate detailed tasks
           const taskCount = myMember.tasks?.filter((t: any) => t.status !== 'Completed').length || 0;

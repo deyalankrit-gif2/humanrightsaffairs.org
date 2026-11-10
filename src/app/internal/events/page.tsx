@@ -135,6 +135,21 @@ export default function EventsPage() {
 
   const { data: firestoreEvents, loading: dataLoading } = useCollection(eventsQuery);
 
+  const toEvent = (event: any): Event => ({
+    id: event?.id ?? '',
+    title: event?.title ?? '',
+    date: event?.date ?? '',
+    location: event?.location ?? '',
+    category: event?.category ?? 'Campaign',
+    imageId: event?.imageId,
+    galleryImages: Array.isArray(event?.galleryImages) ? event.galleryImages : [],
+    galleryCaptions: Array.isArray(event?.galleryCaptions) ? event.galleryCaptions : [],
+    videoUrl: event?.videoUrl,
+    videoCaption: event?.videoCaption,
+    description: event?.description ?? '',
+    descriptionBn: event?.descriptionBn ?? ''
+  });
+
   const [editEvent, setEditEvent] = useState<any>(null)
   const [newEvent, setNewEvent] = useState({
     title: '',
@@ -287,7 +302,7 @@ export default function EventsPage() {
     return (match && match[2].length === 11) ? `https://www.youtube.com/embed/${match[2]}?autoplay=1` : null;
   };
 
-  const filteredEvents = (firestoreEvents || []).filter(e => {
+  const filteredEvents = (firestoreEvents || []).map(toEvent).filter(e => {
     const matchesCategory = filter === "All" || e.category === filter;
     const matchesSearch = (e.title || '').toLowerCase().includes(search.toLowerCase()) || 
                           (e.location || '').toLowerCase().includes(search.toLowerCase());

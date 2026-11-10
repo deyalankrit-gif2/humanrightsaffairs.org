@@ -143,7 +143,38 @@ export default function MembersPage() {
   const db = useFirestore()
   const { toast } = useToast()
 
-  const [newMember, setNewMember] = useState({
+  type MemberFormState = {
+    honorific: string
+    name: string
+    designationCategory: string
+    designation: string
+    profession: string
+    education: string
+    experience: string
+    gender: string
+    bloodGroup: string
+    email: string
+    phone: string
+    address: string
+    postOffice: string
+    policeStation: string
+    pinCode: string
+    level: 'National' | 'State' | 'District' | 'Sub-Division' | 'Block'
+    status: string
+    memberId: string
+    stateName: string
+    districtName: string
+    subdivisionName: string
+    blockName: string
+    imageId: string
+    joiningDate: string
+    expiryDate: string
+    membershipDuration: string
+    aadhaar: string
+    pan: string
+  }
+
+  const [newMember, setNewMember] = useState<MemberFormState>({
     honorific: '',
     name: '',
     designationCategory: 'General Member',
@@ -159,7 +190,7 @@ export default function MembersPage() {
     postOffice: '',
     policeStation: '',
     pinCode: '',
-    level: 'National' as const,
+    level: 'National',
     status: 'Active',
     memberId: '',
     stateName: '',
@@ -324,11 +355,11 @@ export default function MembersPage() {
       setIsAdding(false)
       setIsAddingDialogOpen(false)
       setNewMember({ 
-        honorific: '', name: '', designationCategory: 'General Member', designation: 'General Member', 
-        profession: '', education: '', experience: '', email: '', phone: '', level: 'National', 
-        status: 'Active', memberId: '', stateName: '', districtName: '', subdivisionName: '', blockName: '', gender: 'male', 
-        imageId: '', joiningDate: '', expiryDate: '', membershipDuration: '1 Year',
-        aadhaar: '', pan: ''
+        honorific: '', name: '', designationCategory: 'General Member', designation: 'General Member',
+        profession: '', education: '', experience: '', gender: 'male', bloodGroup: '', email: '', phone: '',
+        address: '', postOffice: '', policeStation: '', pinCode: '', level: 'National', status: 'Active',
+        memberId: '', stateName: '', districtName: '', subdivisionName: '', blockName: '', imageId: '',
+        joiningDate: '', expiryDate: '', membershipDuration: '1 Year', aadhaar: '', pan: ''
       })
     } catch (error: any) {
       toast({ variant: "destructive", title: "Error", description: error.message })

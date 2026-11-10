@@ -7,7 +7,7 @@ import * as z from 'zod'
 import { useFirestore } from '@/firebase'
 import { collection, addDoc, serverTimestamp } from 'firebase/firestore'
 import { useToast } from '@/hooks/use-toast'
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter, DialogClose } from "@/components/ui/dialog"
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter, DialogClose, DialogTrigger } from "@/components/ui/dialog"
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Textarea } from '@/components/ui/textarea'
@@ -49,9 +49,10 @@ const memberSchema = z.object({
   profilePhotoUrl: z.string().url().optional(),
 });
 
-export function MembershipRegistrationDialog({ isOpen, onClose }: { isOpen: boolean, onClose: () => void }) {
+export function MembershipRegistrationDialog({ children }: { children?: React.ReactNode }) {
   const { toast } = useToast();
   const db = useFirestore();
+  const [isOpen, setIsOpen] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const form = useForm<z.infer<typeof memberSchema>>({
@@ -86,7 +87,7 @@ export function MembershipRegistrationDialog({ isOpen, onClose }: { isOpen: bool
       });
       toast({ title: "Success", description: "New personnel has been commissioned." });
       form.reset();
-      onClose();
+      setIsOpen(false);
     } catch (error) {
       console.error("Error adding document: ", error);
       toast({ title: "Error", description: "Failed to commission personnel.", variant: "destructive" });
@@ -96,7 +97,10 @@ export function MembershipRegistrationDialog({ isOpen, onClose }: { isOpen: bool
   };
 
   return (
-    <Dialog open={isOpen} onOpenChange={onClose}>
+    <Dialog open={isOpen} onOpenChange={setIsOpen}>
+      <DialogTrigger asChild>
+        {children ?? <Button className="bg-accent text-primary-foreground font-bold hover:bg-secondary px-8 py-6 rounded-xl text-lg shadow-lg shadow-accent/20">Register as Member</Button>}
+      </DialogTrigger>
       <DialogContent className="max-w-4xl bg-slate-900 border-accent/20 text-white rounded-3xl p-0">
         <DialogHeader className="p-8 border-b border-white/10">
           <div className="flex items-center justify-between">

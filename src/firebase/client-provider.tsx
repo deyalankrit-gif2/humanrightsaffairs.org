@@ -32,7 +32,7 @@ export function FirebaseClientProvider({
       // [SESSION INHERITANCE]: Check if this is a mirror inside the Admin Terminal
       // This allows Root Admin to see Edit/Delete buttons in the iframe view
       try {
-        if (window.self !== window.top && window.top.location.pathname.startsWith('/internal')) {
+        if (window.self !== window.top && window.top && window.top.location.pathname.startsWith('/internal')) {
           return 'AdminTerminal';
         }
       } catch (e) {

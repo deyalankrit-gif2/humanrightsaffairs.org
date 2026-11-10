@@ -53,6 +53,7 @@ import {
   Settings,
   ChevronDown,
   X,
+  CalendarDays,
   Clock as GlobalLoader
 } from 'lucide-react'
 import { 
@@ -63,6 +64,14 @@ import {
   SelectValue 
 } from '@/components/ui/select'
 import { ScrollArea } from '@/components/ui/scroll-area'
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+  DialogClose,
+} from '@/components/ui/dialog'
 import { useToast } from '@/hooks/use-toast'
 import { cn } from '@/lib/utils'
 
@@ -289,7 +298,7 @@ export default function InvestigationCaseHub() {
                      <h3 className="text-xs font-black uppercase text-accent tracking-[0.2em] mb-8 flex items-center gap-2"><Clock className="w-4 h-4" /> Timeline</h3>
                      <div className="space-y-6">
                         <div className="flex gap-4 p-5 bg-white/5 rounded-[1.5rem] border border-white/5">
-                           <div className="w-12 h-12 rounded-xl bg-accent/20 flex items-center justify-center text-accent shrink-0"><CalendarIcon className="w-6 h-6" /></div>
+                           <div className="w-12 h-12 rounded-xl bg-accent/20 flex items-center justify-center text-accent shrink-0"><CalendarDays className="w-6 h-6" /></div>
                            <div className="min-w-0">
                               <p className="text-[8px] font-black text-slate-500 uppercase tracking-widest">Mandate Deadline</p>
                               <p className="text-lg font-headline font-bold text-white truncate">{mandate.deadline || 'ASAP'}</p>

@@ -321,7 +321,7 @@ export default function MemberLoginPage() {
                 <div className="space-y-2">
                   <div className="flex justify-between items-center ml-1">
                     <Label className="text-slate-400 text-[10px] font-bold uppercase tracking-wider">Passphrase</Label>
-                    <Link href="/forgot-password" size="sm" className="text-[9px] font-black uppercase text-accent hover:underline">Forgot?</Link>
+                    <Link href="/forgot-password" className="text-[9px] font-black uppercase text-accent hover:underline">Forgot?</Link>
                   </div>
                   <div className="relative">
                     <Input 

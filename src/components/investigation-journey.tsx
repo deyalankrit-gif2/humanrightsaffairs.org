@@ -233,7 +233,7 @@ export function InvestigationJourney({ complaint }: { complaint: any }) {
                <CheckCircle2 className="w-4 h-4 text-emerald-500" /> Completed Activities
             </h4>
             <div className="space-y-3">
-               {completedActivities.length > 0 ? completedActivities.map((act: any, i) => (
+               {completedActivities.length > 0 ? completedActivities.map((act: any, i: number) => (
                  <div key={i} className="flex items-center gap-3 animate-in slide-in-from-left-2 transition-all">
                     <div className="w-6 h-6 rounded-full bg-emerald-50 flex items-center justify-center text-emerald-600 shrink-0 shadow-sm"><CheckCircle2 className="w-3.5 h-3.5" /></div>
                     <span className="text-xs font-bold text-slate-700 dark:text-slate-300 truncate">{act.action}</span>

@@ -490,6 +490,7 @@ export default function CaseHubPage() {
   };
 
   if (authLoading || dataLoading) return <div className="min-h-screen flex items-center justify-center bg-slate-50"><Loader2 className="w-12 h-12 animate-spin text-accent" /></div>
+  if (!caseData) return <div className="min-h-screen flex items-center justify-center bg-slate-50"><p className="text-sm font-bold uppercase tracking-[0.2em] text-slate-400">Case record unavailable</p></div>
 
   return (
     <main className="min-h-screen bg-slate-50 dark:bg-slate-950 pb-20 w-full overflow-x-hidden">
