@@ -76,6 +76,7 @@ export default function InternalTerminatedMembers() {
     name: '',
     operationLevel: '',
     designationCategory: '',
+    position: '',
     terminationDate: '',
     reason: '',
     status: 'Revoked' as const,
@@ -112,6 +113,13 @@ export default function InternalTerminatedMembers() {
 
   const { data: memberProfiles } = useCollection(memberProfilesQuery)
 
+  const leadershipQuery = useMemoFirebase(() => {
+    if (!db || !user || !hasAccess) return null
+    return query(collection(db, 'leadership'), orderBy('name', 'asc'))
+  }, [db, user, hasAccess])
+
+  const { data: leaders } = useCollection(leadershipQuery)
+
   const operationLevelOptions = Array.from(new Set([
     ...(['National', 'State', 'District', 'Sub-Division', 'Block']),
     ...((memberProfiles || []).map((member: any) => member.level).filter(Boolean))
@@ -120,6 +128,16 @@ export default function InternalTerminatedMembers() {
   const designationCategoryOptions = Array.from(new Set([
     ...(['General Member', 'Board Member', 'Office-bearing Member', 'Volunteer']),
     ...((memberProfiles || []).map((member: any) => member.designationCategory).filter(Boolean))
+  ])).sort((a, b) => a.localeCompare(b))
+
+  const positionOptions = Array.from(new Set([
+    ...((memberProfiles || []).map((member: any) => member.designation).filter((designation: string) =>
+      designation &&
+      !['General Member', 'Board Member', 'Volunteer'].includes(designation)
+    )),
+    ...((leaders || []).map((leader: any) => leader.title).filter(Boolean)),
+    ...((terminated || []).map((member: any) => member.position).filter(Boolean)),
+    ...((terminated || []).map((member: any) => member.designation).filter(Boolean))
   ])).sort((a, b) => a.localeCompare(b))
 
   const handleFileChange = (
@@ -154,11 +172,11 @@ export default function InternalTerminatedMembers() {
   const handleAdd = async () => {
     if (!db) return
 
-    if (!newMember.name || !newMember.operationLevel || !newMember.designationCategory || !newMember.terminationDate) {
+    if (!newMember.name || !newMember.operationLevel || !newMember.designationCategory || !newMember.position || !newMember.terminationDate) {
       toast({
         variant: "destructive",
         title: "Missing Information",
-        description: "Name, Operation Level, Designation Category, and Termination Date are required."
+        description: "Name, Operation Level, Designation Category, Position, and Termination Date are required."
       })
       return
     }
@@ -192,11 +210,11 @@ export default function InternalTerminatedMembers() {
   const handleUpdate = async () => {
     if (!db || !editMember) return
 
-    if (!editMember.name || !editMember.operationLevel || !editMember.designationCategory) {
+    if (!editMember.name || !editMember.operationLevel || !editMember.designationCategory || !editMember.position) {
       toast({
         variant: "destructive",
         title: "Missing Information",
-        description: "Name, Operation Level, and Designation Category are required."
+        description: "Name, Operation Level, Designation Category, and Position are required."
       })
       return
     }
@@ -205,9 +223,7 @@ export default function InternalTerminatedMembers() {
 
     try {
       const { id, ...data } = editMember
-      delete data.position
       delete data.jurisdiction
-      delete data.designation
       delete data.level
 
       await updateDoc(
@@ -266,7 +282,8 @@ export default function InternalTerminatedMembers() {
     (m.name || '').toLowerCase().includes(search.toLowerCase()) ||
     (m.id || '').toLowerCase().includes(search.toLowerCase()) ||
     (m.operationLevel || m.level || '').toLowerCase().includes(search.toLowerCase()) ||
-    (m.designationCategory || '').toLowerCase().includes(search.toLowerCase())
+    (m.designationCategory || '').toLowerCase().includes(search.toLowerCase()) ||
+    (m.position || '').toLowerCase().includes(search.toLowerCase())
   )
 
   return (
@@ -384,6 +401,26 @@ export default function InternalTerminatedMembers() {
                       </SelectTrigger>
                       <SelectContent position="popper" className="z-[1000001]">
                         {designationCategoryOptions.map(option => (
+                          <SelectItem key={option} value={option}>{option}</SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+
+                  {/* POSITION */}
+                  <div className="space-y-1">
+                    <Label className="text-[10px] uppercase font-bold text-slate-400">
+                      Position *
+                    </Label>
+                    <Select
+                      value={newMember.position}
+                      onValueChange={(value: string) => setNewMember({ ...newMember, position: value })}
+                    >
+                      <SelectTrigger className="h-11 rounded-xl">
+                        <SelectValue placeholder="Select Position" />
+                      </SelectTrigger>
+                      <SelectContent position="popper" className="z-[1000001]">
+                        {positionOptions.map(option => (
                           <SelectItem key={option} value={option}>{option}</SelectItem>
                         ))}
                       </SelectContent>
@@ -542,6 +579,10 @@ export default function InternalTerminatedMembers() {
                               Operation Level: {m.operationLevel || m.level || "N/A"}
                             </p>
 
+                            <p className="text-xs text-slate-500">
+                              Position: {m.position || m.designation || "N/A"}
+                            </p>
+
                             <p className="text-xs text-slate-400 italic mt-2 line-clamp-1">
                               "{m.reason}"
                             </p>
@@ -555,7 +596,8 @@ export default function InternalTerminatedMembers() {
                                 setEditMember({
                                   ...m,
                                   operationLevel: m.operationLevel || m.level || '',
-                                  designationCategory: m.designationCategory || ''
+                                  designationCategory: m.designationCategory || '',
+                                  position: m.position || m.designation || ''
                                 })
                                 setIsEditDialogOpen(true)
                               }}
@@ -713,6 +755,26 @@ export default function InternalTerminatedMembers() {
                   </SelectTrigger>
                   <SelectContent position="popper" className="z-[1000001]">
                     {designationCategoryOptions.map(option => (
+                      <SelectItem key={option} value={option}>{option}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+
+              {/* POSITION */}
+              <div className="space-y-1">
+                <Label className="text-[10px] uppercase font-bold">
+                  Position *
+                </Label>
+                <Select
+                  value={editMember.position || ''}
+                  onValueChange={(value: string) => setEditMember({ ...editMember, position: value })}
+                >
+                  <SelectTrigger className="h-11 rounded-xl">
+                    <SelectValue placeholder="Select Position" />
+                  </SelectTrigger>
+                  <SelectContent position="popper" className="z-[1000001]">
+                    {positionOptions.map(option => (
                       <SelectItem key={option} value={option}>{option}</SelectItem>
                     ))}
                   </SelectContent>
