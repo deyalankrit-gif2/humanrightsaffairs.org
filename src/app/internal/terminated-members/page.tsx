@@ -74,10 +74,8 @@ export default function InternalTerminatedMembers() {
 
   const initialMember = {
     name: '',
-    designation: '',
-    position: '',
-    jurisdiction: '',
-    level: 'National' as const,
+    operationLevel: '',
+    designationCategory: '',
     terminationDate: '',
     reason: '',
     status: 'Revoked' as const,
@@ -106,6 +104,23 @@ export default function InternalTerminatedMembers() {
   }, [db, user, hasAccess])
 
   const { data: terminated, loading: dataLoading } = useCollection(terminatedQuery)
+
+  const memberProfilesQuery = useMemoFirebase(() => {
+    if (!db || !user || !hasAccess) return null
+    return query(collection(db, 'memberProfiles'), orderBy('name', 'asc'))
+  }, [db, user, hasAccess])
+
+  const { data: memberProfiles } = useCollection(memberProfilesQuery)
+
+  const operationLevelOptions = Array.from(new Set([
+    ...(['National', 'State', 'District', 'Sub-Division', 'Block']),
+    ...((memberProfiles || []).map((member: any) => member.level).filter(Boolean))
+  ]))
+
+  const designationCategoryOptions = Array.from(new Set([
+    ...(['General Member', 'Board Member', 'Office-bearing Member', 'Volunteer']),
+    ...((memberProfiles || []).map((member: any) => member.designationCategory).filter(Boolean))
+  ])).sort((a, b) => a.localeCompare(b))
 
   const handleFileChange = (
     e: React.ChangeEvent<HTMLInputElement>,
@@ -139,11 +154,11 @@ export default function InternalTerminatedMembers() {
   const handleAdd = async () => {
     if (!db) return
 
-    if (!newMember.name || !newMember.terminationDate) {
+    if (!newMember.name || !newMember.operationLevel || !newMember.designationCategory || !newMember.terminationDate) {
       toast({
         variant: "destructive",
         title: "Missing Information",
-        description: "Name and Termination Date are required."
+        description: "Name, Operation Level, Designation Category, and Termination Date are required."
       })
       return
     }
@@ -177,18 +192,27 @@ export default function InternalTerminatedMembers() {
   const handleUpdate = async () => {
     if (!db || !editMember) return
 
+    if (!editMember.name || !editMember.operationLevel || !editMember.designationCategory) {
+      toast({
+        variant: "destructive",
+        title: "Missing Information",
+        description: "Name, Operation Level, and Designation Category are required."
+      })
+      return
+    }
+
     setIsActionLoading(true)
 
     try {
       const { id, ...data } = editMember
+      delete data.position
+      delete data.jurisdiction
+      delete data.designation
+      delete data.level
 
       await updateDoc(
         doc(db, 'terminatedMembers', id),
-        {
-          ...data,
-          position: data.position || '',
-          jurisdiction: data.jurisdiction || ''
-        }
+        data
       )
 
       toast({ title: "Registry Record Updated" })
@@ -241,8 +265,8 @@ export default function InternalTerminatedMembers() {
   const filtered = (terminated || []).filter((m: any) =>
     (m.name || '').toLowerCase().includes(search.toLowerCase()) ||
     (m.id || '').toLowerCase().includes(search.toLowerCase()) ||
-    (m.position || '').toLowerCase().includes(search.toLowerCase()) ||
-    (m.jurisdiction || '').toLowerCase().includes(search.toLowerCase())
+    (m.operationLevel || m.level || '').toLowerCase().includes(search.toLowerCase()) ||
+    (m.designationCategory || '').toLowerCase().includes(search.toLowerCase())
   )
 
   return (
@@ -326,42 +350,44 @@ export default function InternalTerminatedMembers() {
                     />
                   </div>
 
-                  {/* POSITION */}
+                  {/* OPERATION LEVEL */}
                   <div className="space-y-1">
                     <Label className="text-[10px] uppercase font-bold text-slate-400">
-                      Position
+                      Operation Level *
                     </Label>
-                    <Input
-                      value={newMember.position}
-                      onChange={e => setNewMember({ ...newMember, position: e.target.value })}
-                      placeholder="Enter Position"
-                      className="h-11 rounded-xl"
-                    />
+                    <Select
+                      value={newMember.operationLevel}
+                      onValueChange={(value: string) => setNewMember({ ...newMember, operationLevel: value })}
+                    >
+                      <SelectTrigger className="h-11 rounded-xl">
+                        <SelectValue placeholder="Select Operation Level" />
+                      </SelectTrigger>
+                      <SelectContent position="popper" className="z-[1000001]">
+                        {operationLevelOptions.map(option => (
+                          <SelectItem key={option} value={option}>{option}</SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
                   </div>
 
-                  {/* JURISDICTION */}
+                  {/* DESIGNATION CATEGORY */}
                   <div className="space-y-1">
                     <Label className="text-[10px] uppercase font-bold text-slate-400">
-                      Jurisdiction
+                      Designation Category *
                     </Label>
-                    <Input
-                      value={newMember.jurisdiction}
-                      onChange={e => setNewMember({ ...newMember, jurisdiction: e.target.value })}
-                      placeholder="Enter Jurisdiction"
-                      className="h-11 rounded-xl"
-                    />
-                  </div>
-
-                  {/* EXISTING DESIGNATION */}
-                  <div className="space-y-1">
-                    <Label className="text-[10px] uppercase font-bold text-slate-400">
-                      Designation
-                    </Label>
-                    <Input
-                      value={newMember.designation}
-                      onChange={e => setNewMember({ ...newMember, designation: e.target.value })}
-                      className="h-11 rounded-xl"
-                    />
+                    <Select
+                      value={newMember.designationCategory}
+                      onValueChange={(value: string) => setNewMember({ ...newMember, designationCategory: value })}
+                    >
+                      <SelectTrigger className="h-11 rounded-xl">
+                        <SelectValue placeholder="Select Designation Category" />
+                      </SelectTrigger>
+                      <SelectContent position="popper" className="z-[1000001]">
+                        {designationCategoryOptions.map(option => (
+                          <SelectItem key={option} value={option}>{option}</SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
                   </div>
 
                   {/* DATE AND STATUS */}
@@ -509,15 +535,11 @@ export default function InternalTerminatedMembers() {
                             </h3>
 
                             <p className="text-[10px] font-bold text-slate-500 uppercase tracking-widest">
-                              {m.designation || "EX-MEMBER"}
+                              {m.designationCategory || "EX-MEMBER"}
                             </p>
 
                             <p className="text-xs text-slate-500">
-                              Position: {m.position || "N/A"}
-                            </p>
-
-                            <p className="text-xs text-slate-500">
-                              Jurisdiction: {m.jurisdiction || "N/A"}
+                              Operation Level: {m.operationLevel || m.level || "N/A"}
                             </p>
 
                             <p className="text-xs text-slate-400 italic mt-2 line-clamp-1">
@@ -532,8 +554,8 @@ export default function InternalTerminatedMembers() {
                               onClick={() => {
                                 setEditMember({
                                   ...m,
-                                  position: m.position || '',
-                                  jurisdiction: m.jurisdiction || ''
+                                  operationLevel: m.operationLevel || m.level || '',
+                                  designationCategory: m.designationCategory || ''
                                 })
                                 setIsEditDialogOpen(true)
                               }}
@@ -657,50 +679,44 @@ export default function InternalTerminatedMembers() {
                 />
               </div>
 
-              {/* POSITION */}
+              {/* OPERATION LEVEL */}
               <div className="space-y-1">
                 <Label className="text-[10px] uppercase font-bold">
-                  Position
+                  Operation Level *
                 </Label>
-                <Input
-                  value={editMember.position || ''}
-                  onChange={e => setEditMember({
-                    ...editMember,
-                    position: e.target.value
-                  })}
-                  placeholder="Enter Position"
-                  className="h-11 rounded-xl"
-                />
+                <Select
+                  value={editMember.operationLevel || ''}
+                  onValueChange={(value: string) => setEditMember({ ...editMember, operationLevel: value })}
+                >
+                  <SelectTrigger className="h-11 rounded-xl">
+                    <SelectValue placeholder="Select Operation Level" />
+                  </SelectTrigger>
+                  <SelectContent position="popper" className="z-[1000001]">
+                    {operationLevelOptions.map(option => (
+                      <SelectItem key={option} value={option}>{option}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
               </div>
 
-              {/* JURISDICTION */}
+              {/* DESIGNATION CATEGORY */}
               <div className="space-y-1">
                 <Label className="text-[10px] uppercase font-bold">
-                  Jurisdiction
+                  Designation Category *
                 </Label>
-                <Input
-                  value={editMember.jurisdiction || ''}
-                  onChange={e => setEditMember({
-                    ...editMember,
-                    jurisdiction: e.target.value
-                  })}
-                  placeholder="Enter Jurisdiction"
-                  className="h-11 rounded-xl"
-                />
-              </div>
-
-              {/* EXISTING DESIGNATION */}
-              <div className="space-y-1">
-                <Label className="text-[10px] uppercase font-bold">
-                  Designation
-                </Label>
-                <Input
-                  value={editMember.designation || ''}
-                  onChange={e => setEditMember({
-                    ...editMember,
-                    designation: e.target.value
-                  })}
-                />
+                <Select
+                  value={editMember.designationCategory || ''}
+                  onValueChange={(value: string) => setEditMember({ ...editMember, designationCategory: value })}
+                >
+                  <SelectTrigger className="h-11 rounded-xl">
+                    <SelectValue placeholder="Select Designation Category" />
+                  </SelectTrigger>
+                  <SelectContent position="popper" className="z-[1000001]">
+                    {designationCategoryOptions.map(option => (
+                      <SelectItem key={option} value={option}>{option}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
               </div>
 
               {/* DATE AND STATUS */}
