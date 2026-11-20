@@ -49,7 +49,10 @@ type TerminatedMember = {
   id: string
   name: string
   designation: string
-  level?: "National" | "State" | "District"
+  designationCategory?: string
+  operationLevel?: "National" | "State" | "District" | "Sub-Division" | "Block"
+  position?: string
+  level?: "National" | "State" | "District" | "Sub-Division" | "Block"
   terminationDate: string
   reason: string
   status: "Revoked" | "Cancelled"
@@ -379,9 +382,9 @@ export default function TerminatedMembersPage() {
                                   <div className="flex items-center gap-1 text-slate-400 text-[10px] font-bold uppercase tracking-widest">
                                     <Hash className="w-3 h-3" /> REF: {member.id.slice(-6).toUpperCase()}
                                   </div>
-                                  {member.level && (
+                                  {(member.operationLevel || member.level) && (
                                     <Badge variant="outline" className="border-red-200 text-red-400 text-[9px] font-bold uppercase py-0">
-                                      {member.level === 'National' ? 'Central Council' : member.level}
+                                      {member.operationLevel || member.level}
                                     </Badge>
                                   )}
                                 </div>
